@@ -1,0 +1,31 @@
+{
+  "name": "gitcord",
+  "version": "1.0.0",
+  "description": "A discord bot that manages discord threads and issues.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hannah01-20/gitcord.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hannah01-20/gitcord/issues"
+  },
+  "homepage": "https://github.com/hannah01-20/gitcord#readme",
+  "dependencies": {
+    "@octokit/rest": "^22.0.1",
+    "discord.js": "^14.26.2",
+    "dotenv": "^17.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
