@@ -1,8 +1,14 @@
-import type { ChatInputCommandInteraction, SlashCommandBuilder, Collection } from "discord.js";
+import type {
+  ChatInputCommandInteraction,
+  Collection,
+  SlashCommandBuilder,
+  SlashCommandOptionsOnlyBuilder,
+  SlashCommandSubcommandsOnlyBuilder
+} from "discord.js";
 
 declare module "discord.js" {
   interface Command {
-    data: SlashCommandBuilder;
+    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
     execute(interaction: ChatInputCommandInteraction): Promise<void>;
   }
   interface Client<Ready extends boolean = boolean> {

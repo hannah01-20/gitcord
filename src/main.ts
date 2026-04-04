@@ -2,7 +2,7 @@ import { Events } from "discord.js";
 import dotenv from "dotenv";
 import { GitcordBot } from "./bot/gitcord-bot.js";
 import { commandsHandler } from "./bot/commands/handlers/commands-handler.js";
-import { pingEvent } from "./bot/commands/events/ping-event.js";
+import eventsHandler from "./bot/commands/events/index.js";
 
 dotenv.config({ quiet: true });
 
@@ -10,7 +10,7 @@ const client = GitcordBot.getInstance().client;
 
 client.once(Events.ClientReady, async () => {
   await commandsHandler();
-  await pingEvent();
+  await eventsHandler();
   console.log(`Logged in as ${client.user?.tag}`);
 });
 
