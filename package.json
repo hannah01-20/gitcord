@@ -4,7 +4,11 @@
   "description": "A discord bot that manages discord threads and issues.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc",
+    "prod": "node dist/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy-commands": "tsx src/deploy-commands.ts"
   },
   "repository": {
     "type": "git",
@@ -13,7 +17,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/hannah01-20/gitcord/issues"
   },
@@ -24,7 +28,9 @@
     "dotenv": "^17.4.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.5.2",
+    "eslint": "^10.2.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }
