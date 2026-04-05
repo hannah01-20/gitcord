@@ -3,7 +3,12 @@ import {
   type ChatInputCommandInteraction,
   type Command,
 } from "discord.js";
-import { channel } from "node:diagnostics_channel";
+import helpExecute from "../executes/help-execute.js";
+import addExecute from "../executes/add-execute.js";
+import reviewExecute from "../executes/review-execute.js";
+import reworkExecute from "../executes/rework-execute.js";
+import developExecute from "../executes/develop-execute.js";
+import doneExecute from "../executes/done-execute.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -86,140 +91,29 @@ const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === "help") {
-      await interaction.reply(
-        "Here are the available Gitcord commands:" +
-          "\n`/gitcord help` - Provides help information about Gitcord commands." +
-          "\n`/gitcord add <issue-name>` - Add new issue and create a thread for it." +
-          "\n`/gitcord review <reviewer_1> <reviewer_2> <reviewer_3> <reviewer_4>` - Issue has PR and for review." +
-          "\n`/gitcord rework` - Mark an issue for rework." +
-          "\n`/gitcord develop` - Mark an issue for develop." +
-          "\n`/gitcord done` - Mark an issue for done.",
-      );
+      await helpExecute(interaction);
       return;
     }
     if (subcommand === "add") {
-      const issueName = interaction.options.getString("issue-name", true);
-      const channel = interaction.channel;
-
-      if (!channel || channel.isDMBased() || !("threads" in channel)) {
-        await interaction.reply(
-          "This command can only be used in a guild channel that supports threads.",
-        );
-        return;
-      }
-
-      const thread = await channel.threads.create({
-        name: `open: ${issueName}`,
-        autoArchiveDuration: 60,
-        reason: `Thread created for issue: ${issueName}`,
-      });
-
-      const assignee = interaction.options.getUser("assignee");
-      if (assignee) {
-        try {
-          await thread.members.add(assignee.id);
-          await thread.send(`Assignee: <@${assignee.id}>`);
-        } catch {
-          await thread.send(
-            `Assignee: <@${assignee.id}> (could not be auto-added to the thread).`,
-          );
-        }
-      }
-
-      await interaction.reply(
-        `Issue "${issueName}" has been added and a thread has been created!`,
-      );
+      await addExecute(interaction);
       return;
     }
     if (subcommand === "review") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const reviewers = [
-        interaction.options.getUser("reviewer_1"),
-        interaction.options.getUser("reviewer_2"),
-        interaction.options.getUser("reviewer_3"),
-        interaction.options.getUser("reviewer_4"),
-      ].filter(Boolean) as ReturnType<typeof interaction.options.getUser>[];
-      const threadName = channel.name;
-      if (!threadName.startsWith("open: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'open: '.",
-        );
-        return;
-      }
-
-      channel.setName(threadName.replace("open: ", "review: "));
-
-      if (reviewers.length > 0) {
-        const reviewerMentions = reviewers
-          .map((reviewer) => `<@${reviewer?.id}>`)
-          .join(", ");
-        await interaction.reply(`Review requested from: ${reviewerMentions}`);
-      }
+      await reviewExecute(interaction);
       return;
     }
     if (subcommand === "rework") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const threadName = channel.name;
-      if (!threadName.startsWith("review: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'review: '.",
-        );
-        return;
-      }
-      channel.setName(threadName.replace("review: ", "rework: "));
-      await interaction.reply("The issue has been marked for rework.");
+      await reworkExecute(interaction);
       return;
     }
 
     if (subcommand === "develop") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const threadName = channel.name;
-      if (!threadName.startsWith("review: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'review: '.",
-        );
-        return;
-      }
-      channel.setName(threadName.replace("review: ", "develop: "));
-      await interaction.reply("The issue has been marked for develop.");
+      await developExecute(interaction);
       return;
     }
 
     if (subcommand === "done") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const threadName = channel.name;
-      if (!threadName.startsWith("develop: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'develop: '.",
-        );
-        return;
-      }
-      channel.setName(threadName.replace("develop: ", "done: "));
-      await interaction.reply("The issue has been marked for done.");
+      await doneExecute(interaction);
       return;
     }
 
