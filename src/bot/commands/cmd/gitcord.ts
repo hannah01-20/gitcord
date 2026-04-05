@@ -185,18 +185,21 @@ const command: Command = {
     if (subcommand === "done") {
       const channel = interaction.channel;
       if (!channel?.isThread()) {
-        return await interaction.reply(
+        await interaction.reply(
           "This command can only be used within a thread.",
         );
+        return;
       }
       const threadName = channel.name;
       if (!threadName.startsWith("develop: ")) {
-        return await interaction.reply(
+        await interaction.reply(
           "This command can only be used in threads that start with 'develop: '.",
         );
+        return;
       }
       channel.setName(threadName.replace("develop: ", "done: "));
-      return await interaction.reply("The issue has been marked for done.");
+      await interaction.reply("The issue has been marked for done.");
+      return;
     }
   },
 };
