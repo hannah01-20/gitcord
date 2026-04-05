@@ -1,4 +1,5 @@
 import { type ChatInputCommandInteraction } from "discord.js";
+import { getChannelConfig } from "../../helpers/get-channel-config.js";
 
 export default async function addExecute(interaction: ChatInputCommandInteraction) {
   const issueName = interaction.options.getString("issue-name", true);
@@ -7,6 +8,13 @@ export default async function addExecute(interaction: ChatInputCommandInteractio
   if (!channel || channel.isDMBased() || !("threads" in channel)) {
     await interaction.reply(
       "This command can only be used in a guild channel that supports threads.",
+    );
+    return;
+  }
+  const existingConfig = await getChannelConfig(channel);
+  if (!existingConfig) {
+    await interaction.reply(
+      "Gitcord has not been initialized in this channel. Please run `/gitcord init` first.",
     );
     return;
   }

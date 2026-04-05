@@ -3,12 +3,11 @@ import {
   type ChatInputCommandInteraction,
   type Command,
 } from "discord.js";
-import helpExecute from "../executes/help-execute.js";
-import addExecute from "../executes/add-execute.js";
-import reviewExecute from "../executes/review-execute.js";
-import reworkExecute from "../executes/rework-execute.js";
-import developExecute from "../executes/develop-execute.js";
-import doneExecute from "../executes/done-execute.js";
+import help from "../executes/help.js";
+import init from "../executes/init.js";
+import issue from "../executes/issue/index.js";
+import config from "../executes/config/index.js";
+import search from "../executes/search/index.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -21,103 +20,127 @@ const command: Command = {
     )
     .addSubcommand((subcommand) =>
       subcommand
-        .setName("add")
-        .setDescription("Add new issue and create a thread for it.")
-        .addStringOption((option) =>
-          option
-            .setName("issue-name")
-            .setDescription("The name of the issue to add.")
-            .setRequired(true),
+        .setName("init")
+        .setDescription("Initialize Gitcord configuration in the current channel and will create a pin message configuration."),
+    )
+    // The "config" subcommand group contains all commands related to configuring Gitcord settings for a channel.
+    .addSubcommandGroup(group => 
+      group
+        .setName("config")
+        .setDescription("Commands for configuring Gitcord settings.")
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName("addAlwaysJoinThreads")
+            .addMentionableOption(option => 
+              option
+                .setName("user")
+                .setDescription("The user to always join threads for.")
+            )
         )
-        .addUserOption((option) =>
-          option
-            .setName("assignee")
-            .setDescription("The user to assign the issue to."),
-        ),
     )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("review")
-        .setDescription("Issue has PR and for review.")
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_1")
-            .setDescription("Request a review from a user."),
+    // The "issue" subcommand group contains all commands related to managing issues.
+    .addSubcommandGroup(group => 
+      group
+        .setName("issue")
+        .setDescription("Commands for managing issues.")
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName("add")
+            .setDescription("Add new issue and create a thread for it.")
+            .addStringOption((option) =>
+              option
+                .setName("issue-name")
+                .setDescription("The name of the issue to add.")
+                .setRequired(true),
+            )
+            .addUserOption((option) =>
+              option
+                .setName("assignee")
+                .setDescription("The user to assign the issue to."),
+            ),
         )
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_2")
-            .setDescription("Request a review from a user."),
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName("review")
+            .setDescription("Issue has PR and for review.")
+            .addUserOption((option) =>
+              option
+                .setName("reviewer_1")
+                .setDescription("Request a review from a user."),
+            )
+            .addUserOption((option) =>
+              option
+                .setName("reviewer_2")
+                .setDescription("Request a review from a user."),
+            )
+            .addUserOption((option) =>
+              option
+                .setName("reviewer_3")
+                .setDescription("Request a review from a user."),
+            )
+            .addUserOption((option) =>
+              option
+                .setName("reviewer_4")
+                .setDescription("Request a review from a user."),
+            ),
         )
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_3")
-            .setDescription("Request a review from a user."),
+        .addSubcommand((subcommand) =>
+          subcommand.setName("rework").setDescription("Mark an issue for rework."),
         )
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_4")
-            .setDescription("Request a review from a user."),
-        ),
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName("develop")
+            .setDescription("Mark an issue for develop."),
+        )
+        .addSubcommand((subcommand) =>
+          subcommand.setName("done").setDescription("Mark an issue for done."),
+        )
     )
-    .addSubcommand((subcommand) =>
-      subcommand.setName("rework").setDescription("Mark an issue for rework."),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("develop")
-        .setDescription("Mark an issue for develop."),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand.setName("done").setDescription("Mark an issue for done."),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
+    // The "search" subcommand group contains all commands related to searching for issues.
+    .addSubcommandGroup(group =>
+      group
         .setName("search")
-        .setDescription("Search for issues.")
-        .addUserOption((option) =>
-          option
-            .setName("assignee")
-            .setDescription("Filter by assigned user.")
-            .setRequired(false),
-        )
-        .addStringOption((option) =>
-          option
+        .setDescription("Commands for searching for issues.")
+        .addSubcommand(subcommand =>
+          subcommand
             .setName("issue-name")
-            .setDescription("Filter by a specific keyword in the issue name.")
-            .setRequired(false),
-        ),
+            .setDescription("Search for issues by name.")
+            .addStringOption(option =>
+              option
+                .setName("query")
+                .setDescription("The name of the issue to search for.")
+                .setRequired(true),
+            )
+        )
     ),
+
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+
+    if (subcommandGroup === "issue") {
+      await issue(interaction);
+      return;
+    }
+
+    if (subcommandGroup === "search") {
+      await search(interaction);
+      return;
+    }
+
+    if (subcommandGroup === "config") {
+    await config(interaction);
+    return;
+    }
+
     if (subcommand === "help") {
-      await helpExecute(interaction);
+      await help(interaction);
       return;
     }
-    if (subcommand === "add") {
-      await addExecute(interaction);
+    if (subcommand === "init") {
+      await init(interaction);
       return;
     }
-    if (subcommand === "review") {
-      await reviewExecute(interaction);
-      return;
-    }
-    if (subcommand === "rework") {
-      await reworkExecute(interaction);
-      return;
-    }
-
-    if (subcommand === "develop") {
-      await developExecute(interaction);
-      return;
-    }
-
-    if (subcommand === "done") {
-      await doneExecute(interaction);
-      return;
-    }
-
-    
   },
 };
 
