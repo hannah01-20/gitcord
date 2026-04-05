@@ -61,7 +61,11 @@ const command: Command = {
       subcommand
         .setName("develop")
         .setDescription("Mark an issue for develop."),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("done").setDescription("Mark an issue for done."),
     ),
+
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === "help") {
@@ -176,6 +180,23 @@ const command: Command = {
       channel.setName(threadName.replace("review: ", "develop: "));
       await interaction.reply("The issue has been marked for develop.");
       return;
+    }
+
+    if (subcommand === "done") {
+      const channel = interaction.channel;
+      if (!channel?.isThread()) {
+        return await interaction.reply(
+          "This command can only be used within a thread.",
+        );
+      }
+      const threadName = channel.name;
+      if (!threadName.startsWith("develop: ")) {
+        return await interaction.reply(
+          "This command can only be used in threads that start with 'develop: '.",
+        );
+      }
+      channel.setName(threadName.replace("develop: ", "done: "));
+      return await interaction.reply("The issue has been marked for done.");
     }
   },
 };
