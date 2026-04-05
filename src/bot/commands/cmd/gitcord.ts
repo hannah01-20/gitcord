@@ -24,7 +24,28 @@ const command: Command = {
                       option.setName("assignee")
                             .setDescription("The user to assign the issue to.")
                     )
-        ),
+        )
+        .addSubcommand(subcommand => 
+          subcommand.setName("review")
+                    .setDescription("Issue has PR and for review.")
+                    .addUserOption(option => 
+                      option.setName("reviewer_1")
+                            .setDescription("Request a review from a user.")
+                    )
+                    .addUserOption(option => 
+                      option.setName("reviewer_2")
+                            .setDescription("Request a review from a user.")
+                    )
+                    .addUserOption(option => 
+                      option.setName("reviewer_3")
+                            .setDescription("Request a review from a user.")
+                    )
+                    .addUserOption(option => 
+                      option.setName("reviewer_4")
+                            .setDescription("Request a review from a user.")
+                    )
+        )
+        ,
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === "help") {
@@ -45,7 +66,7 @@ const command: Command = {
       }
 
       const thread = await channel.threads.create({
-        name: issueName,
+        name: `open: ${issueName}`,
         autoArchiveDuration: 60,
         reason: `Thread created for issue: ${issueName}`,
       });
@@ -61,6 +82,32 @@ const command: Command = {
       }
 
       await interaction.reply(`Issue "${issueName}" has been added and a thread has been created!`);
+      return;
+    }
+    if (subcommand === "review") {
+      const channel = interaction.channel;
+      if (!channel?.isThread()) {
+        await interaction.reply("This command can only be used within a thread.");
+        return;
+      }
+      const reviewers = [
+        interaction.options.getUser("reviewer_1"),
+        interaction.options.getUser("reviewer_2"),
+        interaction.options.getUser("reviewer_3"),
+        interaction.options.getUser("reviewer_4")
+      ].filter(Boolean) as ReturnType<typeof interaction.options.getUser>[];
+      const threadName = channel.name;
+      if (!threadName.startsWith("open: ")) {
+        await interaction.reply("This command can only be used in threads that start with 'open: '.");
+        return;
+      }
+
+      channel.setName(threadName.replace("open: ", "review: "));
+
+      if (reviewers.length > 0) {
+        const reviewerMentions = reviewers.map(reviewer => `<@${reviewer?.id}>`).join(", ");
+        await interaction.reply(`Review requested from: ${reviewerMentions}`);
+      }
       return;
     }
   }
