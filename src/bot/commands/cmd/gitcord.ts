@@ -3,6 +3,7 @@ import {
   type ChatInputCommandInteraction,
   type Command,
 } from "discord.js";
+import { channel } from "node:diagnostics_channel";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -64,15 +65,35 @@ const command: Command = {
     )
     .addSubcommand((subcommand) =>
       subcommand.setName("done").setDescription("Mark an issue for done."),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("search")
+        .setDescription("Search for issues.")
+        .addUserOption((option) =>
+          option
+            .setName("assignee")
+            .setDescription("Filter by assigned user.")
+            .setRequired(false),
+        )
+        .addStringOption((option) =>
+          option
+            .setName("issue-name")
+            .setDescription("Filter by a specific keyword in the issue name.")
+            .setRequired(false),
+        ),
     ),
-
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === "help") {
       await interaction.reply(
         "Here are the available Gitcord commands:" +
           "\n`/gitcord help` - Provides help information about Gitcord commands." +
-          "\n`/gitcord add <issue-name>` - Add new issue and create a thread for it.",
+          "\n`/gitcord add <issue-name>` - Add new issue and create a thread for it." +
+          "\n`/gitcord review <reviewer_1> <reviewer_2> <reviewer_3> <reviewer_4>` - Issue has PR and for review." +
+          "\n`/gitcord rework` - Mark an issue for rework." +
+          "\n`/gitcord develop` - Mark an issue for develop." +
+          "\n`/gitcord done` - Mark an issue for done.",
       );
       return;
     }
@@ -201,6 +222,8 @@ const command: Command = {
       await interaction.reply("The issue has been marked for done.");
       return;
     }
+
+    
   },
 };
 
