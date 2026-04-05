@@ -45,6 +45,10 @@ const command: Command = {
                             .setDescription("Request a review from a user.")
                     )
         )
+        .addSubcommand(subcommand => 
+          subcommand.setName("rework")
+                    .setDescription("Mark an issue for rework.")
+        )
         ,
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
@@ -108,6 +112,21 @@ const command: Command = {
         const reviewerMentions = reviewers.map(reviewer => `<@${reviewer?.id}>`).join(", ");
         await interaction.reply(`Review requested from: ${reviewerMentions}`);
       }
+      return;
+    }
+    if (subcommand === "rework") {
+      const channel = interaction.channel;
+      if (!channel?.isThread()) {
+        await interaction.reply("This command can only be used within a thread.");
+        return;
+      }
+      const threadName = channel.name;
+      if (!threadName.startsWith("review: ")) {
+        await interaction.reply("This command can only be used in threads that start with 'review: '.");
+        return;
+      }
+      channel.setName(threadName.replace("review: ", "rework: "));
+      await interaction.reply("The issue has been marked for rework.");
       return;
     }
   }
