@@ -4,6 +4,8 @@ export default async function helpExecute(interaction: ChatInputCommandInteracti
   await interaction.reply(
     "Here are the available Gitcord commands:" +
       "\n`/gitcord help` - Provides help information about Gitcord commands." +
+      "\n`/gitcord init` - Initialize Gitcord in the current channel." +
+      "\n`/gitcord config always-join-threads <action> <user>` - Manage users who always join threads." +
       "\n`/gitcord add <issue-name>` - Add new issue and create a thread for it." +
       "\n`/gitcord review <reviewer_1> <reviewer_2> <reviewer_3> <reviewer_4>` - Issue has PR and for review." +
       "\n`/gitcord rework` - Mark an issue for rework." +
