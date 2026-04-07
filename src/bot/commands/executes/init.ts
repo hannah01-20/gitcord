@@ -1,5 +1,5 @@
 import { type ChatInputCommandInteraction } from "discord.js";
-import { getChannelConfig } from "../helpers/get-channel-config.js";
+import { getChannelConfig } from "../helpers/channel-config.js";
 
 export default async function initExecute(interaction: ChatInputCommandInteraction) {
   if (!interaction.channel || interaction.channel.isDMBased()) {
@@ -18,7 +18,7 @@ export default async function initExecute(interaction: ChatInputCommandInteracti
   }
 
   const configFormat = {
-    "addAlwaysJoinThreads": [""],
+    "alwaysJoinThreads": [],
   };
 
   (await interaction.channel.send({

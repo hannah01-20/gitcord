@@ -30,11 +30,23 @@ const command: Command = {
         .setDescription("Commands for configuring Gitcord settings.")
         .addSubcommand(subcommand =>
           subcommand
-            .setName("addAlwaysJoinThreads")
+            .setName("always-join-threads")
+            .setDescription("Configure users who should always be added to issue threads.")
+            .addStringOption(option => 
+              option
+                .setName("action")
+                .setDescription("Whether to add or remove a user from always joining threads.")
+                .addChoices(
+                  { name: "add", value: "add" },
+                  { name: "remove", value: "remove" },
+                )
+                .setRequired(true)
+            )
             .addMentionableOption(option => 
               option
                 .setName("user")
                 .setDescription("The user to always join threads for.")
+                .setRequired(true)
             )
         )
     )
