@@ -1,5 +1,5 @@
 import { type ChatInputCommandInteraction } from "discord.js";
-import { getChannelConfig } from "../../helpers/get-channel-config.js";
+import { getChannelConfig } from "../../helpers/channel-config.js";
 
 export default async function addExecute(interaction: ChatInputCommandInteraction) {
   const issueName = interaction.options.getString("issue-name", true);
@@ -19,10 +19,25 @@ export default async function addExecute(interaction: ChatInputCommandInteractio
     return;
   }
 
+  const { message, config } = existingConfig;
+
   const thread = await channel.threads.create({
     name: `open: ${issueName}`,
     autoArchiveDuration: 60,
     reason: `Thread created for issue: ${issueName}`,
+  });
+
+  config.alwaysJoinThreads.forEach(async username => {
+    try {
+      const member = await thread.guild.members.fetch({ query: username, limit: 1 }).then(members => members.first());
+      if (member) {
+        await thread.members.add(member.id);
+      } else {
+        console.warn(`Could not find user with username ${username} to add to thread ${thread.name}.`);
+      }
+    } catch (error) {
+      console.error(`Error occurred while fetching member for username ${username}:`, error);
+    }
   });
 
   const assignee = interaction.options.getUser("assignee");
