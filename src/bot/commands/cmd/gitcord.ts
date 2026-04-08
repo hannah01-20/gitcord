@@ -1,4 +1,5 @@
 import {
+  AutocompleteInteraction,
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
   type Command,
@@ -8,6 +9,7 @@ import init from "../executes/init.js";
 import issue from "../executes/issue/index.js";
 import config from "../executes/config/index.js";
 import search from "../executes/search/index.js";
+import set from "../autocompletes/set/index.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -71,41 +73,17 @@ const command: Command = {
                 .setDescription("The user to assign the issue to."),
             ),
         )
-        .addSubcommand((subcommand) =>
+        .addSubcommand(subcommand => 
           subcommand
-            .setName("review")
-            .setDescription("Issue has PR and for review.")
-            .addUserOption((option) =>
+            .setName("set")
+            .setDescription("Set the status of an issue.")
+            .addStringOption(option =>
               option
-                .setName("reviewer_1")
-                .setDescription("Request a review from a user."),
+                .setName("status")
+                .setDescription("The status to set for the issue.")
+                .setAutocomplete(true)
+                .setRequired(true)
             )
-            .addUserOption((option) =>
-              option
-                .setName("reviewer_2")
-                .setDescription("Request a review from a user."),
-            )
-            .addUserOption((option) =>
-              option
-                .setName("reviewer_3")
-                .setDescription("Request a review from a user."),
-            )
-            .addUserOption((option) =>
-              option
-                .setName("reviewer_4")
-                .setDescription("Request a review from a user."),
-            ),
-        )
-        .addSubcommand((subcommand) =>
-          subcommand.setName("rework").setDescription("Mark an issue for rework."),
-        )
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName("develop")
-            .setDescription("Mark an issue for develop."),
-        )
-        .addSubcommand((subcommand) =>
-          subcommand.setName("done").setDescription("Mark an issue for done."),
         )
     )
     // The "search" subcommand group contains all commands related to searching for issues.
@@ -154,6 +132,15 @@ const command: Command = {
       return;
     }
   },
+
+  async autoComplete(interaction: AutocompleteInteraction) {
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+
+    if (subcommandGroup === "issue"){
+      await set(interaction);
+      return;
+    }
+  }
 };
 
 export default command;

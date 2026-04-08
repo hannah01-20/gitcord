@@ -1,8 +1,5 @@
 import add from "./add.js";
-import review from "./review.js";
-import rework from "./rework.js";
-import develop from "./develop.js";
-import done from "./done.js";
+import set from "./set.js";
 import { type ChatInputCommandInteraction } from "discord.js";
 
 export default async function (interaction: ChatInputCommandInteraction) {
@@ -11,22 +8,12 @@ export default async function (interaction: ChatInputCommandInteraction) {
     await add(interaction);
     return;
   }
-  if (subcommand === "review") {
-    await review(interaction);
-    return;
-  }
-  if (subcommand === "rework") {
-    await rework(interaction);
+
+  if (subcommand === "set") {
+    console.log("Executing issue set command");
+    await set(interaction);
     return;
   }
 
-  if (subcommand === "develop") {
-    await develop(interaction);
-    return;
-  }
-
-  if (subcommand === "done") {
-    await done(interaction);
-    return;
-  }
+  console.error(`Unknown subcommand: ${subcommand}`);
 }
