@@ -19,10 +19,11 @@ export default async function addExecute(interaction: ChatInputCommandInteractio
     return;
   }
 
-  const { message, config } = existingConfig;
+  const { config } = existingConfig;
+  const defaultIssue = config.statusList[0];
 
   const thread = await channel.threads.create({
-    name: `open: ${issueName}`,
+    name: `${defaultIssue}: ${issueName}`,
     autoArchiveDuration: 60,
     reason: `Thread created for issue: ${issueName}`,
   });

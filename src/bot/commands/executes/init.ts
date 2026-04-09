@@ -19,6 +19,13 @@ export default async function initExecute(interaction: ChatInputCommandInteracti
 
   const configFormat = {
     "alwaysJoinThreads": [],
+    "statusList": [
+      "open",
+      "review",
+      "develop",
+      "rework",
+      "close"
+    ]
   };
 
   (await interaction.channel.send({

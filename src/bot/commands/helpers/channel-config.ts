@@ -1,14 +1,28 @@
-import { type TextBasedChannel } from "discord.js";
+import { type TextBasedChannel, type Message } from "discord.js";
 
 const HEADER = "**GITCORD CONFIGURATION**";
 const JSON_BLOCK_REGEX = /```json\n([\s\S]*?)\n```/;
 
 export type ChannelConfig = {
   alwaysJoinThreads: string[];
+  statusList: string[];
 };
 
-export async function getChannelConfig(channel: TextBasedChannel) {
-  const pins = await channel.messages.fetchPins();
+export type T_ChannelConfigMessage = {
+  message: Message;
+  config: ChannelConfig;
+}
+
+export async function getChannelConfig(channel: TextBasedChannel): Promise<T_ChannelConfigMessage | null> {
+  let fetchedChannel: TextBasedChannel = channel;
+
+  if (channel.isThread()) {
+    const parentChannel = channel.parent;
+    if (!parentChannel || !parentChannel.isTextBased()) return null;
+    fetchedChannel = parentChannel;
+  }
+
+  const pins = await fetchedChannel.messages.fetchPins();
   const messages = pins.items.map(item => item.message);
   const gitcordConfigMessage = messages.find(
     message => 

@@ -12,7 +12,7 @@ export async function commandsHandler(){
   const commandsPath = path.join(__dirname, "..", "cmd");
   const commandFiles = fs
     .readdirSync(commandsPath)
-    .filter(file => file.endsWith(".ts") || file.endsWith(".js"));
+    .filter(file => (file.endsWith(".ts") || file.endsWith(".js")) && !file.endsWith(".d.ts"));
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
     const commandModule = await import(pathToFileURL(filePath).href);
