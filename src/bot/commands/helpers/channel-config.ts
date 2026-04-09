@@ -5,7 +5,7 @@ const JSON_BLOCK_REGEX = /```json\n([\s\S]*?)\n```/;
 
 export type ChannelConfig = {
   alwaysJoinThreads: string[];
-  issueStatus: string[];
+  statusList: string[];
 };
 
 export type T_ChannelConfigMessage = {

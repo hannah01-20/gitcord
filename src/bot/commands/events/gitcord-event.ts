@@ -1,5 +1,5 @@
 import { GitcordBot } from "../../gitcord-bot.js";
-import { Events, MessageFlags, AutocompleteInteraction } from "discord.js";
+import { Events, MessageFlags } from "discord.js";
 
 export async function gitcordEvent() {
   const client = GitcordBot.getInstance().client;
@@ -29,11 +29,10 @@ export async function gitcordEvent() {
     };
 
     if (interaction.isAutocomplete()) {
-      console.log(`Autocomplete interaction received: ${interaction.commandName}`);
       const command = interaction.client.commands.get(interaction.commandName);
       if (!command) return;
       if (interaction.commandName !== "gitcord") return;
-  
+      console.log(`Autocomplete interaction received: ${interaction.commandName}`);
       await command.autoComplete?.(interaction);
     }
   });

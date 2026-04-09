@@ -19,7 +19,7 @@ export default async function initExecute(interaction: ChatInputCommandInteracti
 
   const configFormat = {
     "alwaysJoinThreads": [],
-    "issueStatus": [
+    "statusList": [
       "open",
       "review",
       "develop",

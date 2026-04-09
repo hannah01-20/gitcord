@@ -9,7 +9,7 @@ import init from "../executes/init.js";
 import issue from "../executes/issue/index.js";
 import config from "../executes/config/index.js";
 import search from "../executes/search/index.js";
-import set from "../autocompletes/set/index.js";
+import set from "../autocompletes/issue/index.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -49,6 +49,33 @@ const command: Command = {
                 .setName("user")
                 .setDescription("The user to always join threads for.")
                 .setRequired(true)
+            )
+        )
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName("status-list")
+            .setDescription("Configure issue status options.")
+            .addStringOption(option =>
+              option
+                .setName("action")
+                .setDescription("The action to perform on the issue status.")
+                .setRequired(true)
+                .addChoices(
+                  { name: "add", value: "add" },
+                  { name: "remove", value: "remove" },
+                )
+            )
+            .addStringOption(option =>
+              option                
+                .setName("status")
+                .setDescription("The name of the issue status.")
+                .setRequired(true)
+            )
+            .addBooleanOption(option =>
+              option
+                .setName("is-default")
+                .setDescription("Whether this status should be the default status for new issues.")
+                .setRequired(false)
             )
         )
     )

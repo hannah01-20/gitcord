@@ -1,5 +1,5 @@
-import { type ChatInputCommandInteraction, type AutocompleteInteraction } from "discord.js";
-import { getChannelConfig, type T_ChannelConfigMessage } from "../../helpers/channel-config.js";
+import { type ChatInputCommandInteraction } from "discord.js";
+import { getChannelConfig } from "../../helpers/channel-config.js";
 
 export default async function setExecute(interaction: ChatInputCommandInteraction) {
   const channel = interaction.channel;
@@ -16,7 +16,7 @@ export default async function setExecute(interaction: ChatInputCommandInteractio
   }
 
   const status = interaction.options.getString("status");
-  if (!channelConfig.config.issueStatus.includes(status!)) {
+  if (!channelConfig.config.statusList.includes(status!)) {
     await interaction.reply("Invalid status. Please choose a valid status from the autocomplete options.");
     return;
   }

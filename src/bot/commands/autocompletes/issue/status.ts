@@ -14,7 +14,7 @@ export async function statusAutoComplete(interaction: AutocompleteInteraction) {
     return;
   }
   const { config } = channelConfig;
-  const statusOptions = config.issueStatus;
+  const statusOptions = config.statusList;
   await interaction.respond(
     statusOptions.map(status => ({ name: status, value: status }))
   );
