@@ -1,9 +1,16 @@
 import {
+  AutocompleteInteraction,
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
   type Command,
 } from "discord.js";
-import { channel } from "node:diagnostics_channel";
+import help from "../executes/help.js";
+import init from "../executes/init.js";
+import issue from "../executes/issue/index.js";
+import config from "../executes/config/index.js";
+import search from "../executes/search/index.js";
+import set from "../autocompletes/issue/index.js";
+import { getChannelConfig } from "../helpers/channel-config.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -16,215 +23,163 @@ const command: Command = {
     )
     .addSubcommand((subcommand) =>
       subcommand
-        .setName("add")
-        .setDescription("Add new issue and create a thread for it.")
-        .addStringOption((option) =>
-          option
-            .setName("issue-name")
-            .setDescription("The name of the issue to add.")
-            .setRequired(true),
+        .setName("init")
+        .setDescription("Initialize Gitcord configuration in the current channel and will create a pin message configuration."),
+    )
+    // The "config" subcommand group contains all commands related to configuring Gitcord settings for a channel.
+    .addSubcommandGroup(group => 
+      group
+        .setName("config")
+        .setDescription("Commands for configuring Gitcord settings.")
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName("always-join-threads")
+            .setDescription("Configure users who should always be added to issue threads.")
+            .addStringOption(option => 
+              option
+                .setName("action")
+                .setDescription("Whether to add or remove a user from always joining threads.")
+                .addChoices(
+                  { name: "add", value: "add" },
+                  { name: "remove", value: "remove" },
+                )
+                .setRequired(true)
+            )
+            .addMentionableOption(option => 
+              option
+                .setName("user")
+                .setDescription("The user to always join threads for.")
+                .setRequired(true)
+            )
         )
-        .addUserOption((option) =>
-          option
-            .setName("assignee")
-            .setDescription("The user to assign the issue to."),
-        ),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("review")
-        .setDescription("Issue has PR and for review.")
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_1")
-            .setDescription("Request a review from a user."),
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName("status-list")
+            .setDescription("Configure issue status options.")
+            .addStringOption(option =>
+              option
+                .setName("action")
+                .setDescription("The action to perform on the issue status.")
+                .setRequired(true)
+                .addChoices(
+                  { name: "add", value: "add" },
+                  { name: "remove", value: "remove" },
+                )
+            )
+            .addStringOption(option =>
+              option                
+                .setName("status-name")
+                .setDescription("The name of the issue status.")
+                .setRequired(true)
+            )
+            .addBooleanOption(option =>
+              option
+                .setName("is-default")
+                .setDescription("Whether this status should be the default status for new issues.")
+                .setRequired(false)
+            )
         )
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_2")
-            .setDescription("Request a review from a user."),
+    )
+    // The "issue" subcommand group contains all commands related to managing issues.
+    .addSubcommandGroup(group => 
+      group
+        .setName("issue")
+        .setDescription("Commands for managing issues.")
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName("add")
+            .setDescription("Add new issue and create a thread for it.")
+            .addStringOption((option) =>
+              option
+                .setName("issue-name")
+                .setDescription("The name of the issue to add.")
+                .setRequired(true),
+            )
+            .addUserOption((option) =>
+              option
+                .setName("assignee")
+                .setDescription("The user to assign the issue to."),
+            ),
         )
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_3")
-            .setDescription("Request a review from a user."),
+        .addSubcommand(subcommand => 
+          subcommand
+            .setName("set")
+            .setDescription("Set the status of an issue.")
+            .addStringOption(option =>
+              option
+                .setName("status")
+                .setDescription("The status to set for the issue.")
+                .setAutocomplete(true)
+                .setRequired(true)
+            )
         )
-        .addUserOption((option) =>
-          option
-            .setName("reviewer_4")
-            .setDescription("Request a review from a user."),
-        ),
     )
-    .addSubcommand((subcommand) =>
-      subcommand.setName("rework").setDescription("Mark an issue for rework."),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("develop")
-        .setDescription("Mark an issue for develop."),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand.setName("done").setDescription("Mark an issue for done."),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
+    // The "search" subcommand group contains all commands related to searching for issues.
+    .addSubcommandGroup(group =>
+      group
         .setName("search")
-        .setDescription("Search for issues.")
-        .addUserOption((option) =>
-          option
-            .setName("assignee")
-            .setDescription("Filter by assigned user.")
-            .setRequired(false),
-        )
-        .addStringOption((option) =>
-          option
+        .setDescription("Commands for searching for issues.")
+        .addSubcommand(subcommand =>
+          subcommand
             .setName("issue-name")
-            .setDescription("Filter by a specific keyword in the issue name.")
-            .setRequired(false),
-        ),
+            .setDescription("Search for issues by name.")
+            .addStringOption(option =>
+              option
+                .setName("query")
+                .setDescription("The name of the issue to search for.")
+                .setRequired(true),
+            )
+        )
     ),
+
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
-    if (subcommand === "help") {
-      await interaction.reply(
-        "Here are the available Gitcord commands:" +
-          "\n`/gitcord help` - Provides help information about Gitcord commands." +
-          "\n`/gitcord add <issue-name>` - Add new issue and create a thread for it." +
-          "\n`/gitcord review <reviewer_1> <reviewer_2> <reviewer_3> <reviewer_4>` - Issue has PR and for review." +
-          "\n`/gitcord rework` - Mark an issue for rework." +
-          "\n`/gitcord develop` - Mark an issue for develop." +
-          "\n`/gitcord done` - Mark an issue for done.",
-      );
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+    const channel = interaction.channel;
+    if (!channel) {
+      await interaction.reply('This command can only be used in a channel.');
       return;
     }
-    if (subcommand === "add") {
-      const issueName = interaction.options.getString("issue-name", true);
-      const channel = interaction.channel;
+    const channelConfig = await getChannelConfig(channel);
 
-      if (!channel || channel.isDMBased() || !("threads" in channel)) {
-        await interaction.reply(
-          "This command can only be used in a guild channel that supports threads.",
-        );
-        return;
-      }
-
-      const thread = await channel.threads.create({
-        name: `open: ${issueName}`,
-        autoArchiveDuration: 60,
-        reason: `Thread created for issue: ${issueName}`,
-      });
-
-      const assignee = interaction.options.getUser("assignee");
-      if (assignee) {
-        try {
-          await thread.members.add(assignee.id);
-          await thread.send(`Assignee: <@${assignee.id}>`);
-        } catch {
-          await thread.send(
-            `Assignee: <@${assignee.id}> (could not be auto-added to the thread).`,
-          );
-        }
-      }
-
-      await interaction.reply(
-        `Issue "${issueName}" has been added and a thread has been created!`,
-      );
+    if (subcommand === "help" && !subcommandGroup) {
+      await help(interaction);
       return;
     }
-    if (subcommand === "review") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const reviewers = [
-        interaction.options.getUser("reviewer_1"),
-        interaction.options.getUser("reviewer_2"),
-        interaction.options.getUser("reviewer_3"),
-        interaction.options.getUser("reviewer_4"),
-      ].filter(Boolean) as ReturnType<typeof interaction.options.getUser>[];
-      const threadName = channel.name;
-      if (!threadName.startsWith("open: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'open: '.",
-        );
-        return;
-      }
-
-      channel.setName(threadName.replace("open: ", "review: "));
-
-      if (reviewers.length > 0) {
-        const reviewerMentions = reviewers
-          .map((reviewer) => `<@${reviewer?.id}>`)
-          .join(", ");
-        await interaction.reply(`Review requested from: ${reviewerMentions}`);
-      }
-      return;
-    }
-    if (subcommand === "rework") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const threadName = channel.name;
-      if (!threadName.startsWith("review: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'review: '.",
-        );
-        return;
-      }
-      channel.setName(threadName.replace("review: ", "rework: "));
-      await interaction.reply("The issue has been marked for rework.");
+    if (subcommand === "init" && !subcommandGroup) {
+      await init(interaction);
       return;
     }
 
-    if (subcommand === "develop") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const threadName = channel.name;
-      if (!threadName.startsWith("review: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'review: '.",
-        );
-        return;
-      }
-      channel.setName(threadName.replace("review: ", "develop: "));
-      await interaction.reply("The issue has been marked for develop.");
+    if (!channelConfig) {
+      await interaction.reply('Gitcord is not configured for this channel. Please run /gitcord init to set up Gitcord for this channel.');
       return;
     }
 
-    if (subcommand === "done") {
-      const channel = interaction.channel;
-      if (!channel?.isThread()) {
-        await interaction.reply(
-          "This command can only be used within a thread.",
-        );
-        return;
-      }
-      const threadName = channel.name;
-      if (!threadName.startsWith("develop: ")) {
-        await interaction.reply(
-          "This command can only be used in threads that start with 'develop: '.",
-        );
-        return;
-      }
-      channel.setName(threadName.replace("develop: ", "done: "));
-      await interaction.reply("The issue has been marked for done.");
+    if (subcommandGroup === "issue") {
+      await issue(interaction);
       return;
     }
 
-    
+    if (subcommandGroup === "search") {
+      await search(interaction);
+      return;
+    }
+
+    if (subcommandGroup === "config") {
+    await config(interaction);
+    return;
+    }
   },
+
+  async autoComplete(interaction: AutocompleteInteraction) {
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+
+    if (subcommandGroup === "issue"){
+      await set(interaction);
+      return;
+    }
+  }
 };
 
 export default command;

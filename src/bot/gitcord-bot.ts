@@ -6,7 +6,8 @@ export class GitcordBot{
     this.client = new Client({
     intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
     ]}); 
     this.client.commands = new Collection();
   }
