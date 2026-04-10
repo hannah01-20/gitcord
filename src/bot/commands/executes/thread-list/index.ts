@@ -1,7 +1,11 @@
 import { type ChatInputCommandInteraction } from "discord.js";
+import all from "./all.js";
 
 export default async function(interaction: ChatInputCommandInteraction) {
   const subcommand = interaction.options.getSubcommand();
-  await interaction.reply("Not implemented yet: " + subcommand);
+  if (subcommand === "all") {
+    await all(interaction);
+  }
+
   return;
 }
