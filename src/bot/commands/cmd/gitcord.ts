@@ -10,6 +10,7 @@ import issue from "../executes/issue/index.js";
 import config from "../executes/config/index.js";
 import search from "../executes/search/index.js";
 import set from "../autocompletes/issue/index.js";
+import { getChannelConfig } from "../helpers/channel-config.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -67,7 +68,7 @@ const command: Command = {
             )
             .addStringOption(option =>
               option                
-                .setName("status")
+                .setName("status-name")
                 .setDescription("The name of the issue status.")
                 .setRequired(true)
             )
@@ -134,6 +135,26 @@ const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
     const subcommandGroup = interaction.options.getSubcommandGroup();
+    const channel = interaction.channel;
+    if (!channel) {
+      await interaction.reply('This command can only be used in a channel.');
+      return;
+    }
+    const channelConfig = await getChannelConfig(channel);
+
+    if (subcommand === "help" && !subcommandGroup) {
+      await help(interaction);
+      return;
+    }
+    if (subcommand === "init" && !subcommandGroup) {
+      await init(interaction);
+      return;
+    }
+
+    if (!channelConfig) {
+      await interaction.reply('Gitcord is not configured for this channel. Please run /gitcord init to set up Gitcord for this channel.');
+      return;
+    }
 
     if (subcommandGroup === "issue") {
       await issue(interaction);
@@ -148,15 +169,6 @@ const command: Command = {
     if (subcommandGroup === "config") {
     await config(interaction);
     return;
-    }
-
-    if (subcommand === "help") {
-      await help(interaction);
-      return;
-    }
-    if (subcommand === "init") {
-      await init(interaction);
-      return;
     }
   },
 
