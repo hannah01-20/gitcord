@@ -9,8 +9,9 @@ import init from "../executes/init.js";
 import issue from "../executes/issue/index.js";
 import config from "../executes/config/index.js";
 import search from "../executes/search/index.js";
-import set from "../autocompletes/issue/index.js";
+import issueAutoComplete from "../autocompletes/issue/index.js";
 import { getChannelConfig } from "../helpers/channel-config.js";
+import threadList from "../executes/thread-list/index.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -130,7 +131,25 @@ const command: Command = {
                 .setRequired(true),
             )
         )
-    ),
+    )
+    .addSubcommandGroup(group =>
+      group
+        .setName("thread-list")
+        .setDescription("Get a list of all threads associated with issues in this channel.")
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName("all")
+            .setDescription("Get a list of all threads associated with issues in this channel.")
+            .addStringOption(option =>
+              option
+                .setName("status")
+                .setDescription("Filter threads by issue status.")
+                .setRequired(false)
+                .setAutocomplete(true)
+            )
+        )
+    )
+    ,
 
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
@@ -167,16 +186,21 @@ const command: Command = {
     }
 
     if (subcommandGroup === "config") {
-    await config(interaction);
-    return;
+      await config(interaction);
+      return;
+    }
+
+    if (subcommandGroup === "thread-list") {
+      await threadList(interaction);
+      return;
     }
   },
 
   async autoComplete(interaction: AutocompleteInteraction) {
     const subcommandGroup = interaction.options.getSubcommandGroup();
 
-    if (subcommandGroup === "issue"){
-      await set(interaction);
+    if (subcommandGroup === "issue" || subcommandGroup === "thread-list") {
+      await issueAutoComplete(interaction);
       return;
     }
   }
