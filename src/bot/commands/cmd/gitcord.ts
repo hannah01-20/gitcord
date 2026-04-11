@@ -12,6 +12,7 @@ import search from "../executes/search/index.js";
 import issueAutoComplete from "../autocompletes/issue/index.js";
 import { getChannelConfig } from "../helpers/channel-config.js";
 import threadList from "../executes/thread-list/index.js";
+import searchAutoComplete from "../autocompletes/search/index.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -128,6 +129,7 @@ const command: Command = {
               option
                 .setName("query")
                 .setDescription("The name of the issue to search for.")
+                .setAutocomplete(true)
                 .setRequired(true),
             )
         )
@@ -201,6 +203,11 @@ const command: Command = {
 
     if (subcommandGroup === "issue" || subcommandGroup === "thread-list") {
       await issueAutoComplete(interaction);
+      return;
+    }
+
+    if (subcommandGroup === "search") {
+      await searchAutoComplete(interaction);
       return;
     }
   }

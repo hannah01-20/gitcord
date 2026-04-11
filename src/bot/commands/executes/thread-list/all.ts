@@ -12,7 +12,7 @@ export default async function(interaction: ChatInputCommandInteraction) {
   
   const filteredThreads = threads.threads.filter(thread => {
     if (!status && thread.name.includes(":")) return true;
-    
+
     const threadPrefix = thread.name.split(":")[0]
 
     if (threadPrefix === status) return true;
@@ -27,7 +27,7 @@ export default async function(interaction: ChatInputCommandInteraction) {
   const threadLinks = filteredThreads.map(thread =>
     `- https://discord.com/channels/${thread.guildId}/${thread.id}/${thread.id} \n`
   )
-  const header = status ? `Threads with status ${status}:\n` : "All threads:\n";
+  const header = status ? `Threads with ${status} status:\n` : "All threads:\n";
   await interaction.reply(`${header}${threadLinks.join("")}`);
   return;
 }
