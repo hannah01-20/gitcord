@@ -8,11 +8,8 @@ import help from "../executes/help.js";
 import init from "../executes/init.js";
 import issue from "../executes/issue/index.js";
 import config from "../executes/config/index.js";
-import search from "../executes/search/index.js";
 import issueAutoComplete from "../autocompletes/issue/index.js";
 import { getChannelConfig } from "../helpers/channel-config.js";
-import threadList from "../executes/thread-list/index.js";
-import searchAutoComplete from "../autocompletes/search/index.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -135,45 +132,32 @@ const command: Command = {
                 .setRequired(true)
             )
         )
-    )
-    // The "search" subcommand group contains all commands related to searching for issues.
-    .addSubcommandGroup((group) =>
-      group
-        .setName("search")
-        .setDescription("Commands for searching for issues.")
         .addSubcommand((subcommand) =>
           subcommand
-            .setName("issue-name")
-            .setDescription("Search for issues by name.")
-            .addStringOption((option) =>
-              option
-                .setName("query")
-                .setDescription("The name of the issue to search for.")
-                .setRequired(true)
-            )
-        )
-    )
-    .addSubcommandGroup((group) =>
-      group
-        .setName("thread-list")
-        .setDescription(
-          "Get a list of all threads associated with issues in this channel."
-        )
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName("all")
-            .setDescription(
-              "Get a list of all threads associated with issues in this channel."
-            )
+            .setName("list")
+            .setDescription("List of all issues.")
             .addStringOption((option) =>
               option
                 .setName("status")
-                .setDescription("Filter threads by issue status.")
+                .setDescription("Filter issues by status.")
                 .setRequired(false)
                 .setAutocomplete(true)
             )
         )
+        .addSubcommand((subcommand) => 
+          subcommand
+            .setName("search")
+            .setDescription("Search for issues by name.")
+            .addStringOption((option) =>
+              option
+                .setName("name")
+                .setDescription("The name of the issue to search for.")
+                .setRequired(true)
+                .setAutocomplete(true)
+              )
+        )
     ),
+
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
     const subcommandGroup = interaction.options.getSubcommandGroup();
@@ -205,32 +189,18 @@ const command: Command = {
       return;
     }
 
-    if (subcommandGroup === "search") {
-      await search(interaction);
-      return;
-    }
-
     if (subcommandGroup === "config") {
       await config(interaction);
       return;
     }
 
-    if (subcommandGroup === "thread-list") {
-      await threadList(interaction);
-      return;
-    }
   },
 
   async autoComplete(interaction: AutocompleteInteraction) {
     const subcommandGroup = interaction.options.getSubcommandGroup();
 
-    if (subcommandGroup === "issue" || subcommandGroup === "thread-list") {
+    if (subcommandGroup === "issue") {
       await issueAutoComplete(interaction);
-      return;
-    }
-
-    if (subcommandGroup === "search") {
-      await searchAutoComplete(interaction);
       return;
     }
   },

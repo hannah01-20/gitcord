@@ -6,7 +6,11 @@ export default async function searchAutoComplete(interaction: AutocompleteIntera
   const name = interaction.options.getFocused(true).value.toLocaleLowerCase();
 
   const threads = await channel.threads.fetch();
-  const filteredThreads = threads.threads.filter(thread => thread.name.includes(name) && thread.name.includes(":"));
+  const filteredThreads = threads.threads.filter(thread => {
+    const threadNameSplit = thread.name.split(":");
+    const rawName = threadNameSplit[1]?.trim() || thread.name;
+    return rawName.includes(name) && thread.name.includes(":")
+  });
 
   await interaction.respond(
     filteredThreads.map(thread => {
