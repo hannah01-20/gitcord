@@ -1,7 +1,11 @@
 import { type ChatInputCommandInteraction } from "discord.js";
+import issueName from "./issue-name.js";
 
 export default async function(interaction: ChatInputCommandInteraction) {
   const subcommand = interaction.options.getSubcommand();
-  await interaction.reply("Not implemented yet: " + subcommand);
-  return;
+  
+  if (subcommand === "issue-name") {
+    await issueName(interaction);
+    return;
+  }
 }
