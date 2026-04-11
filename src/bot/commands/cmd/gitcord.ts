@@ -8,8 +8,7 @@ import help from "../executes/help.js";
 import init from "../executes/init.js";
 import issue from "../executes/issue/index.js";
 import config from "../executes/config/index.js";
-import search from "../executes/search/index.js";
-import set from "../autocompletes/issue/index.js";
+import issueAutoComplete from "../autocompletes/issue/index.js";
 import { getChannelConfig } from "../helpers/channel-config.js";
 
 const command: Command = {
@@ -19,69 +18,77 @@ const command: Command = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("help")
-        .setDescription("Provides help information about Gitcord commands."),
+        .setDescription("Provides help information about Gitcord commands.")
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("init")
-        .setDescription("Initialize Gitcord configuration in the current channel and will create a pin message configuration."),
+        .setDescription(
+          "Initialize Gitcord configuration in the current channel and will create a pin message configuration."
+        )
     )
     // The "config" subcommand group contains all commands related to configuring Gitcord settings for a channel.
-    .addSubcommandGroup(group => 
+    .addSubcommandGroup((group) =>
       group
         .setName("config")
         .setDescription("Commands for configuring Gitcord settings.")
-        .addSubcommand(subcommand =>
+        .addSubcommand((subcommand) =>
           subcommand
             .setName("always-join-threads")
-            .setDescription("Configure users who should always be added to issue threads.")
-            .addStringOption(option => 
+            .setDescription(
+              "Configure users who should always be added to issue threads."
+            )
+            .addStringOption((option) =>
               option
                 .setName("action")
-                .setDescription("Whether to add or remove a user from always joining threads.")
+                .setDescription(
+                  "Whether to add or remove a user from always joining threads."
+                )
                 .addChoices(
                   { name: "add", value: "add" },
-                  { name: "remove", value: "remove" },
+                  { name: "remove", value: "remove" }
                 )
                 .setRequired(true)
             )
-            .addMentionableOption(option => 
+            .addMentionableOption((option) =>
               option
                 .setName("user")
                 .setDescription("The user to always join threads for.")
                 .setRequired(true)
             )
         )
-        .addSubcommand(subcommand =>
+        .addSubcommand((subcommand) =>
           subcommand
             .setName("status-list")
             .setDescription("Configure issue status options.")
-            .addStringOption(option =>
+            .addStringOption((option) =>
               option
                 .setName("action")
                 .setDescription("The action to perform on the issue status.")
                 .setRequired(true)
                 .addChoices(
                   { name: "add", value: "add" },
-                  { name: "remove", value: "remove" },
+                  { name: "remove", value: "remove" }
                 )
             )
-            .addStringOption(option =>
-              option                
+            .addStringOption((option) =>
+              option
                 .setName("status-name")
                 .setDescription("The name of the issue status.")
                 .setRequired(true)
             )
-            .addBooleanOption(option =>
+            .addBooleanOption((option) =>
               option
                 .setName("is-default")
-                .setDescription("Whether this status should be the default status for new issues.")
+                .setDescription(
+                  "Whether this status should be the default status for new issues."
+                )
                 .setRequired(false)
             )
         )
     )
     // The "issue" subcommand group contains all commands related to managing issues.
-    .addSubcommandGroup(group => 
+    .addSubcommandGroup((group) =>
       group
         .setName("issue")
         .setDescription("Commands for managing issues.")
@@ -93,19 +100,19 @@ const command: Command = {
               option
                 .setName("issue-name")
                 .setDescription("The name of the issue to add.")
-                .setRequired(true),
+                .setRequired(true)
             )
             .addUserOption((option) =>
               option
                 .setName("assignee")
-                .setDescription("The user to assign the issue to."),
-            ),
+                .setDescription("The user to assign the issue to.")
+            )
         )
-        .addSubcommand(subcommand => 
+        .addSubcommand((subcommand) =>
           subcommand
             .setName("set")
             .setDescription("Set the status of an issue.")
-            .addStringOption(option =>
+            .addStringOption((option) =>
               option
                 .setName("status")
                 .setDescription("The status to set for the issue.")
@@ -113,22 +120,41 @@ const command: Command = {
                 .setRequired(true)
             )
         )
-    )
-    // The "search" subcommand group contains all commands related to searching for issues.
-    .addSubcommandGroup(group =>
-      group
-        .setName("search")
-        .setDescription("Commands for searching for issues.")
-        .addSubcommand(subcommand =>
+        .addSubcommand((subcommand) =>
           subcommand
-            .setName("issue-name")
-            .setDescription("Search for issues by name.")
-            .addStringOption(option =>
+            .setName("rename")
+            .setDescription("Rename an issue.")
+            .addStringOption((option) =>
               option
                 .setName("query")
                 .setDescription("The name of the issue to search for.")
-                .setRequired(true),
+                .setAutocomplete(true)
+                .setRequired(true)
             )
+        )
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName("list")
+            .setDescription("List of all issues.")
+            .addStringOption((option) =>
+              option
+                .setName("status")
+                .setDescription("Filter issues by status.")
+                .setRequired(false)
+                .setAutocomplete(true)
+            )
+        )
+        .addSubcommand((subcommand) => 
+          subcommand
+            .setName("search")
+            .setDescription("Search for issues by name.")
+            .addStringOption((option) =>
+              option
+                .setName("name")
+                .setDescription("The name of the issue to search for.")
+                .setRequired(true)
+                .setAutocomplete(true)
+              )
         )
     ),
 
@@ -137,7 +163,7 @@ const command: Command = {
     const subcommandGroup = interaction.options.getSubcommandGroup();
     const channel = interaction.channel;
     if (!channel) {
-      await interaction.reply('This command can only be used in a channel.');
+      await interaction.reply("This command can only be used in a channel.");
       return;
     }
     const channelConfig = await getChannelConfig(channel);
@@ -152,7 +178,9 @@ const command: Command = {
     }
 
     if (!channelConfig) {
-      await interaction.reply('Gitcord is not configured for this channel. Please run /gitcord init to set up Gitcord for this channel.');
+      await interaction.reply(
+        "Gitcord is not configured for this channel. Please run /gitcord init to set up Gitcord for this channel."
+      );
       return;
     }
 
@@ -161,14 +189,19 @@ const command: Command = {
       return;
     }
 
-    if (subcommandGroup === "search") {
-      await search(interaction);
+    if (subcommandGroup === "config") {
+      await config(interaction);
       return;
     }
 
-    if (subcommandGroup === "config") {
-    await config(interaction);
-    return;
+  },
+
+  async autoComplete(interaction: AutocompleteInteraction) {
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+
+    if (subcommandGroup === "issue") {
+      await issueAutoComplete(interaction);
+      return;
     }
   },
 

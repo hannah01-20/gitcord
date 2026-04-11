@@ -123,6 +123,23 @@ Run inside the issue thread:
 /gitcord issue set [status]
 ```
 
+#### Issue list
+
+Run inside a channel:
+
+```bash
+/gitcord issue list
+/gitcord issue list [status]
+```
+
+#### Issue search
+
+Run inside a channel:
+
+```bash
+/gitcord issue search [name]
+```
+
 ---
 
 ## ❓ Help Command
