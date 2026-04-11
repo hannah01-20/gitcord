@@ -204,6 +204,15 @@ const command: Command = {
       return;
     }
   },
+
+  async autoComplete(interaction: AutocompleteInteraction) {
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+
+    if (subcommandGroup === "issue"){
+      await set(interaction);
+      return;
+    }
+  }
 };
 
 export default command;
