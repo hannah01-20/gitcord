@@ -67,6 +67,7 @@ export default async function statusList(interaction: ChatInputCommandInteractio
     }
     await existingConfig.message.edit(formatConfigContent(updatedConfig));
     await interaction.reply(`The status "${statusToRemove}" has been removed from the issue status list.`);
+    return;
   }
 
   await interaction.reply("This command is not yet implemented.");
