@@ -18,7 +18,7 @@ const command: Command = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("help")
-        .setDescription("Provides help information about Gitcord commands."),
+        .setDescription("Provides help information about Gitcord commands.")
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -46,7 +46,7 @@ const command: Command = {
                 )
                 .addChoices(
                   { name: "add", value: "add" },
-                  { name: "remove", value: "remove" },
+                  { name: "remove", value: "remove" }
                 )
                 .setRequired(true),
             )
@@ -100,13 +100,13 @@ const command: Command = {
               option
                 .setName("issue-name")
                 .setDescription("The name of the issue to add.")
-                .setRequired(true),
+                .setRequired(true)
             )
             .addUserOption((option) =>
               option
                 .setName("assignee")
-                .setDescription("The user to assign the issue to."),
-            ),
+                .setDescription("The user to assign the issue to.")
+            )
         )
         .addSubcommand((subcommand) =>
           subcommand
