@@ -73,7 +73,7 @@ const command: Command = {
             )
             .addStringOption((option) =>
               option
-                .setName("status-name")
+                .setName("status")
                 .setDescription("The name of the issue status.")
                 .setRequired(true),
             )
