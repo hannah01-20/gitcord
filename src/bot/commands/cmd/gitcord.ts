@@ -126,7 +126,7 @@ const command: Command = {
             .setDescription("Rename an issue.")
             .addStringOption((option) =>
               option
-                .setName("query")
+                .setName("new-issue-name")
                 .setDescription("The name of the issue to search for.")
                 .setAutocomplete(true)
                 .setRequired(true)
@@ -144,7 +144,7 @@ const command: Command = {
                 .setAutocomplete(true)
             )
         )
-        .addSubcommand((subcommand) => 
+        .addSubcommand((subcommand) =>
           subcommand
             .setName("search")
             .setDescription("Search for issues by name.")
@@ -154,7 +154,7 @@ const command: Command = {
                 .setDescription("The name of the issue to search for.")
                 .setRequired(true)
                 .setAutocomplete(true)
-              )
+            )
         )
     ),
 
@@ -193,7 +193,6 @@ const command: Command = {
       await config(interaction);
       return;
     }
-
   },
 
   async autoComplete(interaction: AutocompleteInteraction) {
@@ -205,14 +204,14 @@ const command: Command = {
     }
   },
 
-  async autoComplete(interaction: AutocompleteInteraction) {
-    const subcommandGroup = interaction.options.getSubcommandGroup();
+  // async autoComplete(interaction: AutocompleteInteraction) {
+  //   const subcommandGroup = interaction.options.getSubcommandGroup();
 
-    if (subcommandGroup === "issue"){
-      await set(interaction);
-      return;
-    }
-  }
+  //   if (subcommandGroup === "issue") {
+  //     await set(interaction);
+  //     return;
+  //   }
+  // },
 };
 
 export default command;
