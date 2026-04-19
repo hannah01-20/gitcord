@@ -18,14 +18,14 @@ const command: Command = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("help")
-        .setDescription("Provides help information about Gitcord commands.")
+        .setDescription("Provides help information about Gitcord commands."),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("init")
         .setDescription(
-          "Initialize Gitcord configuration in the current channel and will create a pin message configuration."
-        )
+          "Initialize Gitcord configuration in the current channel and will create a pin message configuration.",
+        ),
     )
     // The "config" subcommand group contains all commands related to configuring Gitcord settings for a channel.
     .addSubcommandGroup((group) =>
@@ -36,26 +36,26 @@ const command: Command = {
           subcommand
             .setName("always-join-threads")
             .setDescription(
-              "Configure users who should always be added to issue threads."
+              "Configure users who should always be added to issue threads.",
             )
             .addStringOption((option) =>
               option
                 .setName("action")
                 .setDescription(
-                  "Whether to add or remove a user from always joining threads."
+                  "Whether to add or remove a user from always joining threads.",
                 )
                 .addChoices(
                   { name: "add", value: "add" },
-                  { name: "remove", value: "remove" }
+                  { name: "remove", value: "remove" },
                 )
-                .setRequired(true)
+                .setRequired(true),
             )
             .addMentionableOption((option) =>
               option
                 .setName("user")
                 .setDescription("The user to always join threads for.")
-                .setRequired(true)
-            )
+                .setRequired(true),
+            ),
         )
         .addSubcommand((subcommand) =>
           subcommand
@@ -68,24 +68,24 @@ const command: Command = {
                 .setRequired(true)
                 .addChoices(
                   { name: "add", value: "add" },
-                  { name: "remove", value: "remove" }
-                )
+                  { name: "remove", value: "remove" },
+                ),
             )
             .addStringOption((option) =>
               option
-                .setName("status-name")
+                .setName("status")
                 .setDescription("The name of the issue status.")
-                .setRequired(true)
+                .setRequired(true),
             )
             .addBooleanOption((option) =>
               option
                 .setName("is-default")
                 .setDescription(
-                  "Whether this status should be the default status for new issues."
+                  "Whether this status should be the default status for new issues.",
                 )
-                .setRequired(false)
-            )
-        )
+                .setRequired(false),
+            ),
+        ),
     )
     // The "issue" subcommand group contains all commands related to managing issues.
     .addSubcommandGroup((group) =>
@@ -100,13 +100,13 @@ const command: Command = {
               option
                 .setName("issue-name")
                 .setDescription("The name of the issue to add.")
-                .setRequired(true)
+                .setRequired(true),
             )
             .addUserOption((option) =>
               option
                 .setName("assignee")
-                .setDescription("The user to assign the issue to.")
-            )
+                .setDescription("The user to assign the issue to."),
+            ),
         )
         .addSubcommand((subcommand) =>
           subcommand
@@ -117,8 +117,8 @@ const command: Command = {
                 .setName("status")
                 .setDescription("The status to set for the issue.")
                 .setAutocomplete(true)
-                .setRequired(true)
-            )
+                .setRequired(true),
+            ),
         )
         .addSubcommand((subcommand) =>
           subcommand
@@ -126,11 +126,11 @@ const command: Command = {
             .setDescription("Rename an issue.")
             .addStringOption((option) =>
               option
-                .setName("query")
+                .setName("new-issue-name")
                 .setDescription("The name of the issue to search for.")
                 .setAutocomplete(true)
-                .setRequired(true)
-            )
+                .setRequired(true),
+            ),
         )
         .addSubcommand((subcommand) =>
           subcommand
@@ -141,10 +141,10 @@ const command: Command = {
                 .setName("status")
                 .setDescription("Filter issues by status.")
                 .setRequired(false)
-                .setAutocomplete(true)
-            )
+                .setAutocomplete(true),
+            ),
         )
-        .addSubcommand((subcommand) => 
+        .addSubcommand((subcommand) =>
           subcommand
             .setName("search")
             .setDescription("Search for issues by name.")
@@ -153,9 +153,9 @@ const command: Command = {
                 .setName("name")
                 .setDescription("The name of the issue to search for.")
                 .setRequired(true)
-                .setAutocomplete(true)
-              )
-        )
+                .setAutocomplete(true),
+            ),
+        ),
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -179,7 +179,7 @@ const command: Command = {
 
     if (!channelConfig) {
       await interaction.reply(
-        "Gitcord is not configured for this channel. Please run /gitcord init to set up Gitcord for this channel."
+        "Gitcord is not configured for this channel. Please run /gitcord init to set up Gitcord for this channel.",
       );
       return;
     }
@@ -193,7 +193,6 @@ const command: Command = {
       await config(interaction);
       return;
     }
-
   },
 
   async autoComplete(interaction: AutocompleteInteraction) {
@@ -204,15 +203,6 @@ const command: Command = {
       return;
     }
   },
-
-  async autoComplete(interaction: AutocompleteInteraction) {
-    const subcommandGroup = interaction.options.getSubcommandGroup();
-
-    if (subcommandGroup === "issue"){
-      await set(interaction);
-      return;
-    }
-  }
 };
 
 export default command;
